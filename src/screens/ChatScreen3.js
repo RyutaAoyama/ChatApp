@@ -5,6 +5,7 @@ import { getMessageDocRef, db } from '../lib/firebase';
 import firebase from 'firebase';
 import axios from 'axios';
 import { GiftedChat } from 'react-native-gifted-chat';
+import uuid from 'react-uuid';
 
 export default function ChatScreen3() {
   const [text, setText] = useState([]);
@@ -17,49 +18,52 @@ export default function ChatScreen3() {
   const sendMessage = () => {
 
   }
-  const getMessage = async() =>{
-    const messages = [];
-    const docRef = db.collection("message");
-    db.collection("message").get().then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
-            messages.unshift(doc.data());
-            setMessages(messages)
-            console.log(messages)
-            // console.log(doc.id, " => ", doc.data());
-        });
-    });
-  }
+//   const getMessage = async() =>{
+//     const messages = [];
+//     const docRef = db.collection("message");
+//     db.collection("message").get().then((querySnapshot) => {
+//         querySnapshot.forEach((doc) => {
+//             // doc.data() is never undefined for query doc snapshots
+//             messages.unshift(doc.data());
+//             setMessages(messages)
+//             console.log(messages)
+//             // console.log(doc.id, " => ", doc.data());
+//         });
+//     });
+//   }
 
-  useEffect(() => {
+//   useEffect(() => {
     // const messages = getMessage()
-    setMessages([
-      {
-        _id: 1,
-        text: 'Hello',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-    ])
-  }, botMessages)
+    // setMessages([
+    //   {
+    //     _id: 1,
+    //     text: 'Hello',
+    //     createdAt: new Date(),
+    //     user: {
+    //       _id: 2,
+    //       name: 'React Native',
+    //       avatar: 'https://placeimg.com/140/140/any',
+    //     },
+    //   },
+    // ])
+//   }, [])
 
   const onSend = useCallback((messages = []) => {
       let botMessages = [];
     // const docRef = getMessageDocRef();
-    setMessages(previousMessages => GiftedChat.append(previousMessages, messages),)
+    setMessages(previousMessages => GiftedChat.append(previousMessages, messages[0]),)
+    // db.collection('message').doc().set({messages})
+
     let params = new FormData();
       params.append("apikey", apiKey);
-      params.append("query", messages );
+      params.append("query", messages[0].text );
+      console.log(messages)
         axios.post(url, params).then((res)=>{
             // console.log(res.data)
             // docRef.set(res.data)
         botMessages = [
             {
-              _id: 1,
+              _id: uuid(),
               text: res.data.results[0].reply,
               createdAt: new Date(),
               user: {
@@ -69,7 +73,9 @@ export default function ChatScreen3() {
               },
             },
         ]
-        setBotMessages(previousMessages => GiftedChat.append(previousMessages, res.data.results[0].reply,))
+        setMessages(previousMessages => GiftedChat.append(previousMessages, botMessages))
+        db.collection('message').doc().set({botMessages})
+
         console.log(botMessages)
       })
   }, [])
