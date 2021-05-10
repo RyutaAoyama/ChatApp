@@ -18,21 +18,21 @@ export default function ChatScreen3() {
   const sendMessage = () => {
 
   }
-//   const getMessage = async() =>{
-//     const messages = [];
-//     const docRef = db.collection("message");
-//     db.collection("message").get().then((querySnapshot) => {
-//         querySnapshot.forEach((doc) => {
-//             // doc.data() is never undefined for query doc snapshots
-//             messages.unshift(doc.data());
-//             setMessages(messages)
-//             console.log(messages)
-//             // console.log(doc.id, " => ", doc.data());
-//         });
-//     });
-//   }
+  const getMessage = async() =>{
+    const messages = [];
+    // const docRef = db.collection("message");
+    db.collection("message").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            messages.unshift(doc.data());
+            setMessages(messages)
+            console.log(messages)
+            // console.log(doc.id, " => ", doc.data());
+        });
+    });
+  }
 
-//   useEffect(() => {
+  useEffect(() => {
     // const messages = getMessage()
     // setMessages([
     //   {
@@ -46,7 +46,7 @@ export default function ChatScreen3() {
     //     },
     //   },
     // ])
-//   }, [])
+  }, [])
 
   const onSend = useCallback((messages = []) => {
       let botMessages = [];
@@ -74,24 +74,36 @@ export default function ChatScreen3() {
             },
         ]
         setMessages(previousMessages => GiftedChat.append(previousMessages, botMessages))
-        db.collection('message').doc().set({botMessages})
+        // db.collection('message').doc().set({botMessages})
 
         console.log(botMessages)
       })
   }, [])
 
+  const reset = () =>{
+      location.reload();
+  }
+
 
   return (
-          <GiftedChat
-          messages={messages}
-          onSend={messages => onSend(messages)}
-          user={{
-            _id: 1,
-          }}
-          />
+      <>
+        <GiftedChat
+        messages={messages}
+        placeholder="テキストを入力してください"
+        label="送信"
+        onSend={messages => onSend(messages)}
+        user={{
+        _id: 1,
+        }}
+        textInputStyle={styles.textInput}
+        containerStyle={{backgroundColor: 'hsl(0, 0%, 90%)'}}
+        textStyle={{color: "black"}}
+        />
+        <Button title="リセット" onPress={() => {reset()}} />
+     </>
     );
   }
-  
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -99,18 +111,13 @@ export default function ChatScreen3() {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    textInputContainer: {
-      width: '100%',
-      flexDirection: 'row',
-      alignItems: 'center'
-    },
-    inputText: {
-      color: '#fff',
-      borderWidth: 1,
-      borderColor: '#999',
-      height: 32,
-      flex: 1,
-      borderRadius: 5,
-      paddingHorizontal: 10
+    textInput: {
+        borderColor: "green",
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingLeft: 5,
+        paddingTop: 7,
+        backgroundColor: "white"
+    }
   }
-  });
+  );
